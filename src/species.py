@@ -81,7 +81,7 @@ class Species:
                 if type == "RefSeq":
                     self.log += f"gff for {self.name}, RefSeq accession {self.refseq_accesion} not found"
                 if type == "UserSubmitted":
-                    self.log += f"gff for {self.name}, UserSubmitted accession {self.user_submitted_accession_accesion} not found"
+                    self.log += f"gff for {self.name}, UserSubmitted accession {self.user_submitted_accesion} not found"
                 return
  
             if type == "RefSeq":
