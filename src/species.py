@@ -78,8 +78,9 @@ class Species:
             self.log += f"Command failed: {results.stderr}\n"
             return
         cmd = f"unzip -o -d {self.filepath} {self.filepath}.zip"
-        results = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if results.returncode != 0:
+        if not self.filepath.exists():
+            results = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if results.returncode != 0:
                 self.log += f"Command failed: {results.stderr}\n"
                 return
         else:
