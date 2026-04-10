@@ -64,11 +64,7 @@ class Species:
         if metadata.returncode == 0:
             metadata = json.loads(metadata.stdout)
             tax_metadata = metadata["reports"][0]["taxonomy"]["classification"]
-            species = tax_metadata["species"]["name"]
             taxid = tax_metadata["species"]["id"]
-            genus = tax_metadata["genus"]["name"]
-            family = tax_metadata["family"]["name"]
-            tax_class = tax_metadata["class"]["name"]
             self.taxon_id = taxid
 
     def download_accession(self, type=""):

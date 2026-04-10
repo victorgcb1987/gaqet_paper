@@ -24,11 +24,10 @@ def main():
                           record["Assembly Level"], out_dir)
         species.get_user_submitted_accession()
         species.print_metadata()
-        species.print_log()
         species.download_accession(type="RefSeq")
         species.download_accession(type="UserSubmitted")
-        species.print_log()
         species.print_metadata()
+        species.print_log()
 
         #species_dir = out_dir / species
 
