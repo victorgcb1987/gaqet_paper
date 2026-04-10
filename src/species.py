@@ -73,45 +73,45 @@ class Species:
             cmd = f"datasets download genome accession {self.refseq_accesion} --include genome,gff3 --filename {self.filepath}.zip"
         if type == "UserSubmitted":
             cmd = f"datasets download genome accession {self.user_submitted_accession} --include genome,gff3 --filename {self.filepath}.zip"
-        results = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if results.returncode != 0:
-            self.log += f"Command failed: {results.stderr}\n"
-            return
-        cmd = f"unzip -o -d {self.filepath} {self.filepath}.zip"
         if not self.filepath.exists():
             results = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if results.returncode != 0:
                 self.log += f"Command failed: {results.stderr}\n"
                 return
-        else:
-            try:
-                ncbi_dir = self.filepath / "ncbi_dataset"
-                annot = list(ncbi_dir.rglob("*.gff"))[0]
-            except:
+            cmd = f"unzip -o -d {self.filepath} {self.filepath}.zip"
+            results = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if results.returncode != 0:
+                    self.log += f"Command failed: {results.stderr}\n"
+                    return
+            else:
+                try:
+                    ncbi_dir = self.filepath / "ncbi_dataset"
+                    annot = list(ncbi_dir.rglob("*.gff"))[0]
+                except:
+                    if type == "RefSeq":
+                        self.log += f"gff for {self.name}, RefSeq accession {self.refseq_accesion} not found"
+                    if type == "UserSubmitted":
+                        self.log += f"gff for {self.name}, UserSubmitted accession {self.user_submitted_accesion} not found"
+                    return
+    
                 if type == "RefSeq":
-                    self.log += f"gff for {self.name}, RefSeq accession {self.refseq_accesion} not found"
+                    renamed_gff = f"{self.name}_RefSeq_{self.refseq_accesion}.gff"
                 if type == "UserSubmitted":
-                    self.log += f"gff for {self.name}, UserSubmitted accession {self.user_submitted_accesion} not found"
-                return
- 
+                    renamed_gff = f"{self.name}_UserSubmitted_{self.user_submitted_accession}.gff"
+                annot.replace(self.filepath / renamed_gff)
+                try:
+                    assembly = list(ncbi_dir.rglob("*.fna"))[0]
+                except:
+                    self.log += f"Assembly fasta for {self.name} not found"
+                assembly_fpath = self.filepath / assembly.name
+                if not assembly_fpath.is_file():
+                    shutil.copy(assembly, assembly_fpath)
+                self.assembly = assembly_fpath
+                shutil.rmtree(self.filepath / "ncbi_dataset")
+                Path(f"{self.filepath}.zip").unlink(missing_ok=False)
             if type == "RefSeq":
-                renamed_gff = f"{self.name}_RefSeq_{self.refseq_accesion}.gff"
-            if type == "UserSubmitted":
-                renamed_gff = f"{self.name}_UserSubmitted_{self.user_submitted_accession}.gff"
-            annot.replace(self.filepath / renamed_gff)
-            try:
-                assembly = list(ncbi_dir.rglob("*.fna"))[0]
-            except:
-                self.log += f"Assembly fasta for {self.name} not found"
-            assembly_fpath = self.filepath / assembly.name
-            if not assembly_fpath.is_file():
-                shutil.copy(assembly, assembly_fpath)
-            self.assembly = assembly_fpath
-            shutil.rmtree(self.filepath / "ncbi_dataset")
-            Path(f"{self.filepath}.zip").unlink(missing_ok=False)
-        if type == "RefSeq":
-            self.RefSeq_annot = self.filepath / renamed_gff
-            self.RefSeq_assembly = assembly_fpath
-        elif type == "UserSubmitted":
-            self.UserSubmitted_annot = self.filepath / renamed_gff
-            self.UserSubmitted_assembly = assembly_fpath
+                self.RefSeq_annot = self.filepath / renamed_gff
+                self.RefSeq_assembly = assembly_fpath
+            elif type == "UserSubmitted":
+                self.UserSubmitted_annot = self.filepath / renamed_gff
+                self.UserSubmitted_assembly = assembly_fpath
